@@ -5,7 +5,7 @@ from collections import Counter
 
 # === CONFIG ===
 PROJECT_DIR = "/Users/pranjal/Desktop/Projects/UBER"  # change as needed
-IGNORE_DIRS = {"node_modules", ".git", "__pycache__"}
+IGNORE_DIRS = {"node_modules", ".git", "__pycache__", "dist", "report", "build", ".next"}
 
 # Common JS operators (extendable)
 OPERATORS = {
@@ -18,23 +18,29 @@ OPERATORS = {
     "async", "import", "export", "from", "class", "extends"
 }
 
-# Regex patterns
 TOKEN_PATTERN = re.compile(r"[A-Za-z_]\w*|==|===|!=|!==|<=|>=|&&|\|\||[+\-*/%=&|^<>!?;:.,{}()[\]]")
+COMMENT_PATTERN = re.compile(r"(//.*?$|/\*.*?\*/)", re.DOTALL | re.MULTILINE)
 
 def extract_operators_operands(filepath):
     with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
         code = f.read()
-    
-    tokens = TOKEN_PATTERN.findall(code)
-    operators, operands = [], []
+    code_no_comments = re.sub(COMMENT_PATTERN, "", code)
+    tokens = TOKEN_PATTERN.findall(code_no_comments)
 
+    operators, operands = [], []
     for token in tokens:
         if token in OPERATORS:
             operators.append(token)
         else:
             operands.append(token)
+    lines = [
+        line.strip()
+        for line in code_no_comments.split("\n")
+        if line.strip() and not line.strip().startswith("//")
+    ]
+    loc = len(lines)
 
-    return operators, operands
+    return operators, operands, loc
 
 def calculate_halstead(n1, n2, N1, N2):
     n = n1 + n2
@@ -58,17 +64,19 @@ def calculate_halstead(n1, n2, N1, N2):
 
 def analyze_project():
     total_ops, total_opnds = [], []
+    total_loc = 0
 
     for root, dirs, files in os.walk(PROJECT_DIR):
-        dirs[:] = [d for d in dirs if d not in IGNORE_DIRS]  # skip ignored dirs
+        dirs[:] = [d for d in dirs if d not in IGNORE_DIRS]
 
         for file in files:
             if file.endswith((".js", ".jsx")):
                 filepath = os.path.join(root, file)
                 print(f"Analyzing: {filepath}")
-                ops, opnds = extract_operators_operands(filepath)
+                ops, opnds, loc = extract_operators_operands(filepath)
                 total_ops.extend(ops)
                 total_opnds.extend(opnds)
+                total_loc += loc
 
     op_counter = Counter(total_ops)
     opd_counter = Counter(total_opnds)
@@ -82,6 +90,7 @@ def analyze_project():
         print("\n=== Halstead Metrics Summary ===")
         for k, v in metrics.items():
             print(f"{k:15}: {v}")
+        print(f"{'Lines of Code':15}: {total_loc}")
     else:
         print("Insufficient data to calculate Halstead metrics.")
 
