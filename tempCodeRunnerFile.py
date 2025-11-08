@@ -1,0 +1,1 @@
+ node_modules,.git,__pycache__,dist,report,build,.next,report,report2,report_final

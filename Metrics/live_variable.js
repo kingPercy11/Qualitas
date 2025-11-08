@@ -17,12 +17,11 @@ function walkDir(root, dir, files) {
     const full = path.join(dir, entry.name);
     const rel = path.relative(root, full);
 
-    // ✅ Skip ignored directories
     const ignoredDirs = ['node_modules', 'dist', 'report', 'build', '.next','scripts'];
     if (ignoredDirs.some(ignore => rel.includes(`${ignore}${path.sep}`))) continue;
 
     if (entry.isDirectory()) {
-      if (ignoredDirs.includes(entry.name)) continue; // skip if directly matches
+      if (ignoredDirs.includes(entry.name)) continue;
       walkDir(root, full, files);
     } else if (/\.(js|jsx)$/.test(entry.name)) {
       files.push(full);
