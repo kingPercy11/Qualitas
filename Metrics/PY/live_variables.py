@@ -118,13 +118,13 @@ def run_live_variable_analysis(project_dir, ignore_dirs, output_csv):
     js_files = get_js_files(project_dir, ignore_dirs)
 
     if not js_files:
-        print("⚠️ No JS/JSX files found for analysis.")
+        print("No JS/JSX files found for analysis.")
         return
 
     os.makedirs(os.path.dirname(output_csv), exist_ok=True)
     all_results = []
 
-    print("\n📊 Starting Live Variable Analysis...\n")
+    print("\nStarting Live Variable Analysis...\n")
     for filepath in js_files:
         print(f"Analyzing: {filepath}")
         var_map = analyze_file(filepath)
@@ -142,4 +142,4 @@ def run_live_variable_analysis(project_dir, ignore_dirs, output_csv):
         writer.writeheader()
         writer.writerows(all_results)
 
-    print(f"\n✅ Live Variable report saved to: {output_csv}")
+    print(f"\nLive Variable report saved to: {output_csv}")
