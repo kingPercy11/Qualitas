@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Form
-# metrics_controllers.py is the actual controller module name (plural)
-from Backend.Controllers.metrics_controllers import analyze_controller
+from Controllers.metrics_controllers import analyze_controller
 
 router = APIRouter()
 
@@ -10,5 +9,4 @@ def analyze_route(
     ignore_dirs: str = Form("node_modules,dist,build,.next"),
     output_dir: str = Form("reports")
 ):
-    """POST endpoint to trigger all analyses."""
     return analyze_controller(project_dir, ignore_dirs, output_dir)

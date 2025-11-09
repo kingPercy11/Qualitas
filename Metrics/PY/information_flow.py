@@ -3,13 +3,11 @@ import re
 import csv
 from collections import defaultdict
 
-# Regex patterns
 FUNC_DEF_PATTERN = re.compile(r'function\s+([A-Za-z0-9_]+)|([A-Za-z0-9_]+)\s*=\s*\(.*?\)\s*=>')
 FUNC_CALL_PATTERN = re.compile(r'([A-Za-z0-9_]+)\s*\(')
 
 
 def extract_functions_and_calls(filepath):
-    """Extract function definitions and calls in JS/JSX file."""
     with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
         code = f.read()
     
@@ -26,7 +24,6 @@ def extract_functions_and_calls(filepath):
 
 
 def run_information_flow_analysis(project_dir, ignore_dirs , output_csv):
-    """Analyze project and save Information Flow metrics to CSV."""
     all_funcs = defaultdict(set)
     all_calls = defaultdict(list)
     all_lengths = {}

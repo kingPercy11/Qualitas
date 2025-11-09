@@ -1,11 +1,9 @@
-# halstead_analysis.py
 import os
 import re
 import math
 import csv
 from collections import Counter
 
-# Common JS operators (extendable)
 OPERATORS = {
     "+", "-", "*", "/", "%", "++", "--", "==", "===",
     "!=", "!==", ">", "<", ">=", "<=", "&&", "||", "!",
@@ -21,7 +19,6 @@ COMMENT_PATTERN = re.compile(r"(//[^\n]*|/\*[\s\S]*?\*/)", re.MULTILINE)
 
 
 def extract_operators_operands(filepath):
-    """Extract operators, operands, and lines of code (LOC) from a file."""
     with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
         code = f.read()
 
@@ -41,7 +38,6 @@ def extract_operators_operands(filepath):
 
 
 def calculate_halstead(n1, n2, N1, N2):
-    """Compute Halstead complexity metrics."""
     n = n1 + n2
     N = N1 + N2
     if n1 == 0 or n2 == 0 or n == 0:
@@ -63,7 +59,6 @@ def calculate_halstead(n1, n2, N1, N2):
 
 
 def run_halstead_analysis(project_dir, ignore_dirs, output_csv):
-    """Run Halstead analysis on all JS/JSX files in project_dir and save CSV."""
     total_ops, total_opnds = [], []
     total_loc = 0
     file_results = []
@@ -91,7 +86,6 @@ def run_halstead_analysis(project_dir, ignore_dirs, output_csv):
                     total_opnds.extend(opnds)
                     total_loc += loc
 
-    # Project total
     total_op_counter = Counter(total_ops)
     total_opd_counter = Counter(total_opnds)
     n1, n2 = len(total_op_counter), len(total_opd_counter)
@@ -103,7 +97,7 @@ def run_halstead_analysis(project_dir, ignore_dirs, output_csv):
         total_metrics["Lines_of_Code"] = total_loc
         file_results.append(total_metrics)
 
-    # Write CSV
+
     if file_results:
         keys = ["File", "n1", "n2", "N1", "N2", "Vocabulary", "Length", "Calc_Length",
                 "Volume", "Difficulty", "Effort", "Time_sec", "Bugs", "Lines_of_Code"]

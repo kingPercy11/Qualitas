@@ -13,7 +13,6 @@ from live_variables import run_live_variable_analysis
 
 
 def get_user_input():
-    """Take project directory, ignore list, and output directory from user."""
     project_dir = input("Enter project directory path to analyze: ").strip()
     while not os.path.exists(project_dir):
         print("Directory not found. Try again.")
@@ -36,7 +35,6 @@ def get_user_input():
 
 
 def run_quality_metrics(project_dir=None, ignore_dirs=None, output_dir=None):
-    """Runs Halstead, InfoFlow, and Live Variables analyses together."""
     if not project_dir:
         project_dir = input("Enter project directory: ").strip()
     if not ignore_dirs:
