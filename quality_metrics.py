@@ -35,24 +35,38 @@ def get_user_input():
     return project_dir, ignore_dirs, halstead_csv, infoflow_csv, livevar_csv
 
 
-def run_quality_metrics():
-    """Main entry function to run Halstead, Info Flow, and Live Variable metrics."""
-    print("\n=== Project Quality Metrics Suite ===\n")
-    project_dir, ignore_dirs, halstead_csv, infoflow_csv, livevar_csv = get_user_input()
+def run_quality_metrics(project_dir=None, ignore_dirs=None, output_dir=None):
+    """Runs Halstead, InfoFlow, and Live Variables analyses together."""
+    if not project_dir:
+        project_dir = input("Enter project directory: ").strip()
+    if not ignore_dirs:
+        ignore_input = input("Enter comma-separated folders to ignore: ").strip()
+        ignore_dirs = set(map(str.strip, ignore_input.split(","))) if ignore_input else set()
+    if not output_dir:
+        output_dir = input("Enter output directory for CSVs: ").strip()
 
-    print("\nRunning Halstead Complexity Analysis...\n")
+    os.makedirs(output_dir, exist_ok=True)
+
+    halstead_csv = os.path.join(output_dir, "halstead_report.csv")
+    infoflow_csv = os.path.join(output_dir, "information_flow_metrics.csv")
+    livevar_csv = os.path.join(output_dir, "live_variable_metrics.csv")
+
+    print("\nRunning Halstead Analysis...")
     run_halstead_analysis(project_dir, ignore_dirs, halstead_csv)
 
-    print("\nRunning Information Flow Analysis...\n")
+    print("\nRunning Information Flow Analysis...")
     run_information_flow_analysis(project_dir, ignore_dirs, infoflow_csv)
 
-    print("\nRunning Live Variable Analysis...\n")
+    print("\nRunning Live Variable Analysis...")
     run_live_variable_analysis(project_dir, ignore_dirs, livevar_csv)
 
-    print("\nAll analyses complete! Reports saved at:")
-    print(f"   • {halstead_csv}")
-    print(f"   • {infoflow_csv}")
-    print(f"   • {livevar_csv}")
+    print("\n✅ All analyses complete!")
+
+    return {
+        "halstead": halstead_csv,
+        "information_flow": infoflow_csv,
+        "live_variables": livevar_csv
+    }
 
 
 if __name__ == "__main__":
