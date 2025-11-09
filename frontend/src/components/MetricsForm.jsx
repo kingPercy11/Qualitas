@@ -30,6 +30,14 @@ export default function MetricsForm() {
     }
   };
 
+const getReportPath = () => {
+    if (!projectDir) return outputDir || "";
+    // const usesBackslash = projectDir.includes("\\") && !projectDir.includes("/");
+    // const sep = usesBackslash ? "\\" : "/";
+    // const trimmed = projectDir.replace(/[\\/]+$/g, "");
+    return `${outputDir}`;
+};
+
 return (
     <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-10 w-full max-w-2xl transition-all">
         <h2 className="text-3xl font-bold mb-8 text-blue-600 dark:text-blue-400 text-center">
@@ -96,7 +104,7 @@ return (
 
                 <p className="font-medium mb-2">Reports saved to:</p>
                 <pre className="bg-white dark:bg-gray-600 rounded p-2 text-sm overflow-auto">
-                    {/* {getReportPath()} */}
+                    {getReportPath()}
                 </pre>
             </div>
         )}
