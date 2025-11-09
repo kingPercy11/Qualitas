@@ -16,7 +16,7 @@ def analyze_metrics(project_dir: str, ignore_dirs: set, output_dir: str):
     """
     try:
         os.makedirs(output_dir, exist_ok=True)
-        print(f"📂 Running quality analysis on: {project_dir}")
+        print(f"Running quality analysis on: {project_dir}")
 
         # run_quality_metrics() already orchestrates Halstead + InfoFlow + LiveVariables
         run_quality_metrics(project_dir, ignore_dirs, output_dir)

@@ -60,7 +60,7 @@ def run_quality_metrics(project_dir=None, ignore_dirs=None, output_dir=None):
     print("\nRunning Live Variable Analysis...")
     run_live_variable_analysis(project_dir, ignore_dirs, livevar_csv)
 
-    print("\n✅ All analyses complete!")
+    print("\nAll analyses complete!")
 
     return {
         "halstead": halstead_csv,
