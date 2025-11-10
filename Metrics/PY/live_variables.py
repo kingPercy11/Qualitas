@@ -31,14 +31,14 @@ class Scope:
         return visible
 
 
-def get_js_files(project_dir, ignore_dirs):
-    js_files = []
+def get_files_by_extensions(project_dir, ignore_dirs, file_extensions=('.js', '.jsx')):
+    files_list = []
     for root, dirs, files in os.walk(project_dir):
         dirs[:] = [d for d in dirs if d not in ignore_dirs]
         for file in files:
-            if file.endswith((".js", ".jsx")):
-                js_files.append(os.path.join(root, file))
-    return js_files
+            if file.endswith(file_extensions):
+                files_list.append(os.path.join(root, file))
+    return files_list
 
 
 def parse_scopes(lines):
@@ -97,13 +97,13 @@ def analyze_file(filepath):
     return var_map
 
 
-def run_live_variable_analysis(project_dir, ignore_dirs, output_csv):
-    """Run live variable analysis for all JS/JSX files and export CSV."""
+def run_live_variable_analysis(project_dir, ignore_dirs, output_csv, file_extensions=('.js', '.jsx')):
+    """Run live variable analysis for files matching file_extensions and export CSV."""
     ignore_dirs = ignore_dirs or IGNORED_DEFAULT
-    js_files = get_js_files(project_dir, ignore_dirs)
+    js_files = get_files_by_extensions(project_dir, ignore_dirs, file_extensions)
 
     if not js_files:
-        print("No JS/JSX files found for analysis.")
+        print(f"No files found for extensions: {file_extensions}")
         return
 
     os.makedirs(os.path.dirname(output_csv), exist_ok=True)

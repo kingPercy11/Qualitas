@@ -23,7 +23,7 @@ def extract_functions_and_calls(filepath):
     return functions, calls, len(code.splitlines())
 
 
-def run_information_flow_analysis(project_dir, ignore_dirs , output_csv):
+def run_information_flow_analysis(project_dir, ignore_dirs , output_csv, file_extensions=('.js', '.jsx')):
     all_funcs = defaultdict(set)
     all_calls = defaultdict(list)
     all_lengths = {}
@@ -32,7 +32,7 @@ def run_information_flow_analysis(project_dir, ignore_dirs , output_csv):
         dirs[:] = [d for d in dirs if d not in ignore_dirs]
         
         for file in files:
-            if file.endswith(('.js', '.jsx')):
+            if file.endswith(file_extensions):
                 path = os.path.join(root, file)
                 print(f"Analyzing: {path}")
                 funcs, calls, length = extract_functions_and_calls(path)

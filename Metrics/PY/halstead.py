@@ -58,7 +58,7 @@ def calculate_halstead(n1, n2, N1, N2):
     }
 
 
-def run_halstead_analysis(project_dir, ignore_dirs, output_csv):
+def run_halstead_analysis(project_dir, ignore_dirs, output_csv, file_extensions=('.js', '.jsx')):
     total_ops, total_opnds = [], []
     total_loc = 0
     file_results = []
@@ -67,7 +67,7 @@ def run_halstead_analysis(project_dir, ignore_dirs, output_csv):
         dirs[:] = [d for d in dirs if d not in ignore_dirs]
 
         for file in files:
-            if file.endswith((".js", ".jsx")):
+            if file.endswith(file_extensions):
                 filepath = os.path.join(root, file)
                 print(f"Analyzing: {filepath}")
                 ops, opnds, loc = extract_operators_operands(filepath)
