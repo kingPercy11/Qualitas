@@ -49,25 +49,37 @@ def run_quality_metrics(project_dir=None, ignore_dirs=None, output_dir=None):
 
     os.makedirs(output_dir, exist_ok=True)
 
-    # Detect language and call corresponding parser
-    lang = language_detector.detect_language(project_dir)
-    print(f"Detected language: {lang}")
+    # Detect all languages present and run each parser separately. Each
+    # language will write CSVs into a subfolder under output_dir.
+    langs = language_detector.detect_languages(project_dir)
+    print(f"Detected languages: {langs}")
 
-    if lang == 'unknown':
+    if not langs:
         print("No recognizable source files found. Please provide a valid project directory.")
         return {}
 
-    try:
-        parser_mod = import_module(f"Metrics.parsers.{lang}.parser")
-    except Exception as e:
-        print(f"Parser for language '{lang}' not found or failed to load: {e}")
-        return {}
+    all_results = {}
+    for lang in langs:
+        try:
+            parser_mod = import_module(f"Metrics.parsers.{lang}.parser")
+        except Exception as e:
+            print(f"Parser for language '{lang}' not found or failed to load: {e}")
+            all_results[lang] = {"error": str(e)}
+            continue
 
-    print(f"Running metrics using parser for: {lang}")
-    results = parser_mod.run_metrics(project_dir, ignore_dirs, output_dir)
+        lang_output = os.path.join(output_dir, lang)
+        os.makedirs(lang_output, exist_ok=True)
+
+        print(f"Running metrics using parser for: {lang}")
+        try:
+            results = parser_mod.run_metrics(project_dir, ignore_dirs, lang_output)
+            all_results[lang] = results
+        except Exception as e:
+            print(f"Error running parser for {lang}: {e}")
+            all_results[lang] = {"error": str(e)}
 
     print("\nAll analyses complete!")
-    return results
+    return all_results
 
 
 if __name__ == "__main__":
