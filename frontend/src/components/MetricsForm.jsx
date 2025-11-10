@@ -11,6 +11,7 @@ export default function MetricsForm() {
     const [selectedFiles, setSelectedFiles] = useState([]);
     const dirInputRef = useRef(null);
     const fileInputRef = useRef(null);
+        const [checkedFiles, setCheckedFiles] = useState(new Set());
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -53,16 +54,55 @@ export default function MetricsForm() {
         setSelectedFiles(files);
         // Clear projectDir string since user chose files directly
         if (files.length > 0) setProjectDir("");
+        // reset any previous checks
+        setCheckedFiles(new Set());
     };
 
     const clearSelection = () => {
         setSelectedFiles([]);
+        setCheckedFiles(new Set());
     };
 
     const selectedFileNames = selectedFiles.map((f) => f.webkitRelativePath || f.name);
     const selectedFolder = selectedFileNames.length > 0 && selectedFileNames[0].includes("/")
         ? selectedFileNames[0].split("/")[0]
         : null;
+
+    const idOf = (file) => (file.webkitRelativePath ? file.webkitRelativePath : file.name);
+
+    const toggleCheck = (id) => {
+        setCheckedFiles((prev) => {
+            const next = new Set(prev);
+            if (next.has(id)) next.delete(id);
+            else next.add(id);
+            return next;
+        });
+    };
+
+    const selectAll = () => {
+        const all = new Set(selectedFileNames.map((n) => n));
+        setCheckedFiles(all);
+    };
+
+    const deselectAll = () => {
+        setCheckedFiles(new Set());
+    };
+
+    const removeSelected = () => {
+        if (checkedFiles.size === 0) return;
+        setSelectedFiles((prev) => prev.filter((f) => !checkedFiles.has(idOf(f))));
+        setCheckedFiles(new Set());
+    };
+
+    const removeFolder = () => {
+        if (!selectedFolder) return;
+        const prefix = selectedFolder + "/";
+        setSelectedFiles((prev) => prev.filter((f) => {
+            const id = idOf(f);
+            return !id.startsWith(prefix);
+        }));
+        setCheckedFiles(new Set());
+    };
 
 const getReportPath = () => {
     if (!projectDir) return outputDir || "";
@@ -108,11 +148,25 @@ return (
                             {selectedFolder && (
                                 <div className="mb-1 font-medium">Selected folder: {selectedFolder}</div>
                             )}
-                            <div className="max-h-40 overflow-auto bg-white dark:bg-gray-800 p-2 rounded">
-                                <ul className="text-sm list-disc list-inside">
-                                    {selectedFileNames.map((n, i) => (
-                                        <li key={i} className="truncate">{n}</li>
-                                    ))}
+                            <div className="flex items-center gap-2 mb-2">
+                                <button type="button" onClick={selectAll} className="text-sm bg-blue-100 hover:bg-blue-200 text-blue-700 py-1 px-2 rounded">Select all</button>
+                                <button type="button" onClick={deselectAll} className="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 py-1 px-2 rounded">Deselect</button>
+                                <button type="button" onClick={removeSelected} className="text-sm bg-red-100 hover:bg-red-200 text-red-700 py-1 px-2 rounded">Remove selected</button>
+                                <button type="button" onClick={removeFolder} disabled={!selectedFolder} className="text-sm bg-red-50 hover:bg-red-100 text-red-600 py-1 px-2 rounded disabled:opacity-50">Remove folder</button>
+                            </div>
+                            <div className="max-h-40 overflow-auto bg-white dark:bg-gray-800  flex-wrap p-2 rounded">
+                                <ul className="text-sm list-inside">
+                                    {selectedFiles.map((file, i) => {
+                                        const id = idOf(file);
+                                        const checked = checkedFiles.has(id);
+                                        const name = selectedFileNames[i];
+                                        return (
+                                            <li key={id} className="flex items-start gap-2 wrap-break-word">
+                                                <input className="mt-1 shrink-0" type="checkbox" checked={checked} onChange={() => toggleCheck(id)} />
+                                                <span className="whitespace-normal wrap-break-word">{name}</span>
+                                            </li>
+                                        );
+                                    })}
                                 </ul>
                             </div>
                         </div>
