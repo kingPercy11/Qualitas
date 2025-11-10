@@ -1,5 +1,7 @@
 import os
 import sys
+import csv
+from collections import Counter
 
 # === Setup paths ===
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -79,6 +81,80 @@ def run_quality_metrics(project_dir=None, ignore_dirs=None, output_dir=None):
             all_results[lang] = {"error": str(e)}
 
     print("\nAll analyses complete!")
+    # Build combined metrics across all languages
+    combined = {
+        "total_ops": {},
+        "total_opnds": {},
+        "variables": {},
+        "halstead_csv": os.path.join(output_dir, "combined_halstead.csv"),
+        "information_flow_csv": os.path.join(output_dir, "combined_information_flow.csv"),
+        "live_variables_csv": os.path.join(output_dir, "combined_live_variables.csv"),
+    }
+
+    # Aggregate counters
+    ops_counter = Counter()
+    opnds_counter = Counter()
+
+    # helpers to collect CSVs
+    halstead_files = []
+    infoflow_files = []
+    livevar_files = []
+
+    for lang, res in all_results.items():
+        if not isinstance(res, dict):
+            continue
+        if res.get("total_ops"):
+            ops_counter.update(res.get("total_ops", {}))
+        if res.get("total_opnds"):
+            opnds_counter.update(res.get("total_opnds", {}))
+        if res.get("variables"):
+            # merge variable maps (file paths should be unique)
+            combined_vars = res.get("variables")
+            for p, vm in combined_vars.items():
+                combined["variables"][p] = vm
+
+        # collect csv paths if present
+        if res.get("halstead"):
+            halstead_files.append(res.get("halstead"))
+        if res.get("information_flow"):
+            infoflow_files.append(res.get("information_flow"))
+        if res.get("live_variables"):
+            livevar_files.append(res.get("live_variables"))
+
+    combined["total_ops"] = dict(ops_counter)
+    combined["total_opnds"] = dict(opnds_counter)
+
+    # Function to concatenate CSVs with a header from the first file
+    def _concat_csvs(sources, dest_path):
+        if not sources:
+            return None
+        first = True
+        with open(dest_path, "w", newline="", encoding="utf-8") as out_f:
+            writer = None
+            for src in sources:
+                try:
+                    with open(src, "r", encoding="utf-8", errors="ignore") as in_f:
+                        reader = csv.reader(in_f)
+                        rows = list(reader)
+                        if not rows:
+                            continue
+                        header, data_rows = rows[0], rows[1:]
+                        if first:
+                            writer = csv.writer(out_f)
+                            writer.writerow(header)
+                            first = False
+                        for r in data_rows:
+                            writer.writerow(r)
+                except FileNotFoundError:
+                    continue
+        return dest_path
+
+    # write combined CSVs
+    _concat_csvs(halstead_files, combined["halstead_csv"]) if halstead_files else None
+    _concat_csvs(infoflow_files, combined["information_flow_csv"]) if infoflow_files else None
+    _concat_csvs(livevar_files, combined["live_variables_csv"]) if livevar_files else None
+
+    all_results["combined"] = combined
     return all_results
 
 
