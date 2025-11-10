@@ -1,3 +1,7 @@
 frontend/node_modules/
 frontend/.env
 Backend/.env
+Backend/__pycache__/
+Qualitas/__pycache__/
+Qualitas/Metrics/PY/__pycache__/
+Qualitas/Metrics/JS/__pycache__/

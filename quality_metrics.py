@@ -10,6 +10,10 @@ sys.path.append(METRICS_PATH)
 from halstead import run_halstead_analysis
 from information_flow import run_information_flow_analysis
 from live_variables import run_live_variable_analysis
+from importlib import import_module
+
+# Dynamically import language detector from Metrics/parsers
+language_detector = import_module("Metrics.parsers.language_detector")
 
 
 def get_user_input():
@@ -45,26 +49,25 @@ def run_quality_metrics(project_dir=None, ignore_dirs=None, output_dir=None):
 
     os.makedirs(output_dir, exist_ok=True)
 
-    halstead_csv = os.path.join(output_dir, "halstead_report.csv")
-    infoflow_csv = os.path.join(output_dir, "information_flow_metrics.csv")
-    livevar_csv = os.path.join(output_dir, "live_variable_metrics.csv")
+    # Detect language and call corresponding parser
+    lang = language_detector.detect_language(project_dir)
+    print(f"Detected language: {lang}")
 
-    print("\nRunning Halstead Analysis...")
-    run_halstead_analysis(project_dir, ignore_dirs, halstead_csv)
+    if lang == 'unknown':
+        print("No recognizable source files found. Please provide a valid project directory.")
+        return {}
 
-    print("\nRunning Information Flow Analysis...")
-    run_information_flow_analysis(project_dir, ignore_dirs, infoflow_csv)
+    try:
+        parser_mod = import_module(f"Metrics.parsers.{lang}.parser")
+    except Exception as e:
+        print(f"Parser for language '{lang}' not found or failed to load: {e}")
+        return {}
 
-    print("\nRunning Live Variable Analysis...")
-    run_live_variable_analysis(project_dir, ignore_dirs, livevar_csv)
+    print(f"Running metrics using parser for: {lang}")
+    results = parser_mod.run_metrics(project_dir, ignore_dirs, output_dir)
 
     print("\nAll analyses complete!")
-
-    return {
-        "halstead": halstead_csv,
-        "information_flow": infoflow_csv,
-        "live_variables": livevar_csv
-    }
+    return results
 
 
 if __name__ == "__main__":
