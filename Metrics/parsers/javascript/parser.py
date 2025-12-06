@@ -55,7 +55,7 @@ def run_metrics(project_dir, ignore_dirs, output_dir):
     run_information_flow_analysis(project_dir, ignore_dirs, infoflow_csv, file_extensions=exts)
 
     print("Running Live Variable Analysis (JavaScript)...")
-    run_live_variable_analysis(project_dir, ignore_dirs, livevar_csv, file_extensions=exts)
+    run_live_variable_analysis(project_dir, ignore_dirs, livevar_csv, file_extensions=exts, variables_map=variables)
 
     return {
         'halstead': halstead_csv,

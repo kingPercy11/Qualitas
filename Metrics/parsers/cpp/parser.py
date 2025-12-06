@@ -1,5 +1,6 @@
 import os
 import importlib
+import re
 
 _hal = importlib.import_module("halstead")
 _info = importlib.import_module("information_flow")
@@ -28,12 +29,57 @@ def _collect_details(project_dir, ignore_dirs, exts):
                 total_opnds.extend(opnds)
 
                 try:
-                    var_map = _live.analyze_file(path)
+                    var_map = _extract_cpp_variables(path)
                 except Exception:
-                    var_map = {}
+                    try:
+                        var_map = _live.analyze_file(path)
+                    except Exception:
+                        var_map = {}
                 variables[path] = var_map
 
     return dict(Counter(total_ops)), dict(Counter(total_opnds)), variables
+
+
+def _extract_cpp_variables(filepath):
+    """Heuristic extractor for C/C++ that collects variable names visible up to each line.
+    Detects simple declarations and assignments. Not a full parser."""
+    var_set = set()
+    result = {}
+
+    # simple type-based declaration regex
+    type_re = re.compile(r"\b(?:int|float|double|char|bool|auto|long|short|unsigned|size_t|std::string|string)\b\s+([A-Za-z_]\w*)")
+    func_def_re = re.compile(r"^[A-Za-z_\*\s:&<>]+\s+([A-Za-z_]\w*)\s*\((.*?)\)\s*(?:\{|;)")
+
+    with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
+        lines = f.readlines()
+
+    for i, line in enumerate(lines, start=1):
+        # function parameters
+        mfunc = func_def_re.match(line.strip())
+        if mfunc:
+            params = mfunc.group(2)
+            for p in [pp.strip() for pp in params.split(',') if pp.strip()]:
+                parts = p.split()
+                name = parts[-1].replace('*', '').replace('&', '').strip()
+                name = name.split('=')[0]
+                if name and name.isidentifier():
+                    var_set.add(name)
+
+        # type declarations
+        for m in type_re.findall(line):
+            name = m
+            if name and name.isidentifier():
+                var_set.add(name)
+
+        # assignments with = (avoid ==)
+        am = re.findall(r"([A-Za-z_]\w*)\s*=", line)
+        for name in am:
+            if name and name.isidentifier():
+                var_set.add(name)
+
+        result[i] = sorted(var_set)
+
+    return result
 
 
 def run_metrics(project_dir, ignore_dirs, output_dir):
@@ -53,7 +99,7 @@ def run_metrics(project_dir, ignore_dirs, output_dir):
     run_information_flow_analysis(project_dir, ignore_dirs, infoflow_csv, file_extensions=exts)
 
     print("Running Live Variable Analysis (C/C++)...")
-    run_live_variable_analysis(project_dir, ignore_dirs, livevar_csv, file_extensions=exts)
+    run_live_variable_analysis(project_dir, ignore_dirs, livevar_csv, file_extensions=exts, variables_map=variables)
 
     return {
         'halstead': halstead_csv,

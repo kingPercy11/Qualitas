@@ -97,30 +97,50 @@ def analyze_file(filepath):
     return var_map
 
 
-def run_live_variable_analysis(project_dir, ignore_dirs, output_csv, file_extensions=('.js', '.jsx')):
-    """Run live variable analysis for files matching file_extensions and export CSV."""
+def run_live_variable_analysis(project_dir, ignore_dirs, output_csv, file_extensions=('.js', '.jsx'), variables_map=None):
+    """Run live variable analysis and export CSV.
+    
+    If variables_map is provided (dict: filepath -> {line: [vars]}), use it directly.
+    Otherwise, analyze files matching file_extensions using the default JS analyzer.
+    """
     ignore_dirs = ignore_dirs or IGNORED_DEFAULT
-    js_files = get_files_by_extensions(project_dir, ignore_dirs, file_extensions)
-
-    if not js_files:
-        print(f"No files found for extensions: {file_extensions}")
-        return
+    
+    if variables_map:
+        # Use pre-computed variables from parser
+        all_results = []
+        print("\nUsing pre-computed variable data...\n")
+        print(f"Processing {len(variables_map)} files from variables_map")
+        for filepath, var_map in variables_map.items():
+            print(f"  File: {filepath} - {len(var_map)} lines")
+            for line_num, vars_ in var_map.items():
+                all_results.append({
+                    "File": filepath,
+                    "Line": line_num,
+                    "Variables": ";".join(vars_),
+                    "Total": len(vars_)
+                })
+        print(f"Total results: {len(all_results)}")
+    else:
+        # Fallback: analyze JS files using default analyzer
+        js_files = get_files_by_extensions(project_dir, ignore_dirs, file_extensions)
+        if not js_files:
+            print(f"No files found for extensions: {file_extensions}")
+            return
+        
+        all_results = []
+        print("\nStarting Live Variable Analysis...\n")
+        for filepath in js_files:
+            print(f"Analyzing: {filepath}")
+            var_map = analyze_file(filepath)
+            for line_num, vars_ in var_map.items():
+                all_results.append({
+                    "File": filepath,
+                    "Line": line_num,
+                    "Variables": ";".join(vars_),
+                    "Total": len(vars_)
+                })
 
     os.makedirs(os.path.dirname(output_csv), exist_ok=True)
-    all_results = []
-
-    print("\nStarting Live Variable Analysis...\n")
-    for filepath in js_files:
-        print(f"Analyzing: {filepath}")
-        var_map = analyze_file(filepath)
-        for line_num, vars_ in var_map.items():
-            all_results.append({
-                "File": filepath,
-                "Line": line_num,
-                "Variables": ";".join(vars_),
-                "Total": len(vars_)
-            })
-
     with open(output_csv, "w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=["File", "Line", "Variables", "Total"])
         writer.writeheader()

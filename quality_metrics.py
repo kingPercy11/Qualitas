@@ -74,7 +74,9 @@ def run_quality_metrics(project_dir=None, ignore_dirs=None, output_dir=None):
 
         print(f"Running metrics using parser for: {lang}")
         try:
+            print(f"  About to call parser_mod.run_metrics for {lang}")
             results = parser_mod.run_metrics(project_dir, ignore_dirs, lang_output)
+            print(f"  Finished parser_mod.run_metrics for {lang}")
             all_results[lang] = results
         except Exception as e:
             print(f"Error running parser for {lang}: {e}")
