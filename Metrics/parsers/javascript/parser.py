@@ -5,9 +5,13 @@ import importlib
 _hal = importlib.import_module("halstead")
 _info = importlib.import_module("information_flow")
 _live = importlib.import_module("live_variables")
+_defect = importlib.import_module("defect_matrix")
+_oop = importlib.import_module("oop_metrics")
 run_halstead_analysis = _hal.run_halstead_analysis
 run_information_flow_analysis = _info.run_information_flow_analysis
 run_live_variable_analysis = _live.run_live_variable_analysis
+run_defect_matrix_analysis = _defect.run_defect_matrix_analysis
+run_oop_metrics_analysis = _oop.run_oop_metrics_analysis
 from collections import Counter
 
 
@@ -42,6 +46,8 @@ def run_metrics(project_dir, ignore_dirs, output_dir):
     halstead_csv = os.path.join(output_dir, "halstead_report.csv")
     infoflow_csv = os.path.join(output_dir, "information_flow_metrics.csv")
     livevar_csv = os.path.join(output_dir, "live_variable_metrics.csv")
+    defect_csv = os.path.join(output_dir, "defect_matrix.csv")
+    oop_csv = os.path.join(output_dir, "oop_metrics.csv")
 
     exts = ('.js', '.jsx', '.ts')
 
@@ -57,10 +63,18 @@ def run_metrics(project_dir, ignore_dirs, output_dir):
     print("Running Live Variable Analysis (JavaScript)...")
     run_live_variable_analysis(project_dir, ignore_dirs, livevar_csv, file_extensions=exts, variables_map=variables)
 
+    print("Running Defect Matrix Analysis (JavaScript)...")
+    run_defect_matrix_analysis(project_dir, ignore_dirs, defect_csv, file_extensions=exts)
+
+    print("Running OOP Metrics Analysis (JavaScript)...")
+    run_oop_metrics_analysis(project_dir, ignore_dirs, oop_csv, file_extensions=exts)
+
     return {
         'halstead': halstead_csv,
         'information_flow': infoflow_csv,
         'live_variables': livevar_csv,
+        'defect_matrix': defect_csv,
+        'oop_metrics': oop_csv,
         'total_ops': total_ops_count,
         'total_opnds': total_opnds_count,
         'variables': variables

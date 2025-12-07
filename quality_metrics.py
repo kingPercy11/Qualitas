@@ -91,6 +91,8 @@ def run_quality_metrics(project_dir=None, ignore_dirs=None, output_dir=None):
         "halstead_csv": os.path.join(output_dir, "combined_halstead.csv"),
         "information_flow_csv": os.path.join(output_dir, "combined_information_flow.csv"),
         "live_variables_csv": os.path.join(output_dir, "combined_live_variables.csv"),
+        "defect_matrix_csv": os.path.join(output_dir, "combined_defect_matrix.csv"),
+        "oop_metrics_csv": os.path.join(output_dir, "combined_oop_metrics.csv"),
     }
 
     # Aggregate counters
@@ -101,6 +103,8 @@ def run_quality_metrics(project_dir=None, ignore_dirs=None, output_dir=None):
     halstead_files = []
     infoflow_files = []
     livevar_files = []
+    defect_files = []
+    oop_files = []
 
     for lang, res in all_results.items():
         if not isinstance(res, dict):
@@ -122,6 +126,10 @@ def run_quality_metrics(project_dir=None, ignore_dirs=None, output_dir=None):
             infoflow_files.append(res.get("information_flow"))
         if res.get("live_variables"):
             livevar_files.append(res.get("live_variables"))
+        if res.get("defect_matrix"):
+            defect_files.append(res.get("defect_matrix"))
+        if res.get("oop_metrics"):
+            oop_files.append(res.get("oop_metrics"))
 
     combined["total_ops"] = dict(ops_counter)
     combined["total_opnds"] = dict(opnds_counter)
@@ -155,6 +163,8 @@ def run_quality_metrics(project_dir=None, ignore_dirs=None, output_dir=None):
     _concat_csvs(halstead_files, combined["halstead_csv"]) if halstead_files else None
     _concat_csvs(infoflow_files, combined["information_flow_csv"]) if infoflow_files else None
     _concat_csvs(livevar_files, combined["live_variables_csv"]) if livevar_files else None
+    _concat_csvs(defect_files, combined["defect_matrix_csv"]) if defect_files else None
+    _concat_csvs(oop_files, combined["oop_metrics_csv"]) if oop_files else None
 
     all_results["combined"] = combined
     return all_results
