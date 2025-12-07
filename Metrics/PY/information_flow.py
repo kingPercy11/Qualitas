@@ -24,6 +24,11 @@ def extract_functions_and_calls(filepath):
 
 
 def run_information_flow_analysis(project_dir, ignore_dirs , output_csv, file_extensions=('.js', '.jsx')):
+    if not project_dir or not project_dir.strip():
+        raise ValueError("Project directory cannot be empty")
+    if not output_csv or not output_csv.strip():
+        raise ValueError("Output CSV path cannot be empty")
+    
     all_funcs = defaultdict(set)
     all_calls = defaultdict(list)
     all_lengths = {}

@@ -93,6 +93,11 @@ def calculate_defect_metrics(filepath):
 
 def run_defect_matrix_analysis(project_dir, ignore_dirs, output_csv, file_extensions=('.py',)):
     """Analyze files and generate defect matrix CSV."""
+    if not project_dir or not project_dir.strip():
+        raise ValueError("Project directory cannot be empty")
+    if not output_csv or not output_csv.strip():
+        raise ValueError("Output CSV path cannot be empty")
+    
     ignore_dirs = ignore_dirs or IGNORED_DEFAULT
     files = get_files_by_extensions(project_dir, ignore_dirs, file_extensions)
     

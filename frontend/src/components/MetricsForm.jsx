@@ -19,6 +19,23 @@ export default function MetricsForm() {
     setError(null);
 
     try {
+      // Validate inputs
+      if (selectedFiles && selectedFiles.length > 0) {
+        // Using file upload - no additional validation needed
+      } else {
+        if (!projectDir || projectDir.trim() === "") {
+          setError("Project directory cannot be empty. Please enter a path or select files.");
+          setLoading(false);
+          return;
+        }
+      }
+      
+      if (!outputDir || outputDir.trim() === "") {
+        setError("Output directory cannot be empty.");
+        setLoading(false);
+        return;
+      }
+
       const formData = new FormData();
             // If user selected files/folder via the picker, send files instead of a path
             if (selectedFiles && selectedFiles.length > 0) {
@@ -35,7 +52,14 @@ export default function MetricsForm() {
   const res = await axios.post(`${apiBase}/api/analyze/`, formData);
       setResult(res.data);
     } catch (err) {
-  setError("Error analyzing project. Check backend logs.");
+      // Better error messages
+      if (err.response && err.response.data && err.response.data.detail) {
+        setError(`Error: ${err.response.data.detail}`);
+      } else if (err.message) {
+        setError(`Error: ${err.message}`);
+      } else {
+        setError("Error analyzing project. Check backend logs.");
+      }
     } finally {
       setLoading(false);
     }

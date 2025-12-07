@@ -103,6 +103,11 @@ def run_live_variable_analysis(project_dir, ignore_dirs, output_csv, file_extens
     If variables_map is provided (dict: filepath -> {line: [vars]}), use it directly.
     Otherwise, analyze files matching file_extensions using the default JS analyzer.
     """
+    if not project_dir or not project_dir.strip():
+        raise ValueError("Project directory cannot be empty")
+    if not output_csv or not output_csv.strip():
+        raise ValueError("Output CSV path cannot be empty")
+    
     ignore_dirs = ignore_dirs or IGNORED_DEFAULT
     
     if variables_map:

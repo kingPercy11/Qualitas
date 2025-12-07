@@ -43,11 +43,22 @@ def get_user_input():
 def run_quality_metrics(project_dir=None, ignore_dirs=None, output_dir=None):
     if not project_dir:
         project_dir = input("Enter project directory: ").strip()
+        if not project_dir:
+            raise ValueError("Project directory cannot be empty")
+    
+    if not os.path.exists(project_dir):
+        raise ValueError(f"Project directory does not exist: {project_dir}")
+    if not os.path.isdir(project_dir):
+        raise ValueError(f"Project path is not a directory: {project_dir}")
+    
     if not ignore_dirs:
         ignore_input = input("Enter comma-separated folders to ignore: ").strip()
         ignore_dirs = set(map(str.strip, ignore_input.split(","))) if ignore_input else set()
+    
     if not output_dir:
         output_dir = input("Enter output directory for CSVs: ").strip()
+        if not output_dir:
+            raise ValueError("Output directory cannot be empty")
 
     os.makedirs(output_dir, exist_ok=True)
 

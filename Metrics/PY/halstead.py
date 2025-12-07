@@ -59,6 +59,11 @@ def calculate_halstead(n1, n2, N1, N2):
 
 
 def run_halstead_analysis(project_dir, ignore_dirs, output_csv, file_extensions=('.js', '.jsx')):
+    if not project_dir or not project_dir.strip():
+        raise ValueError("Project directory cannot be empty")
+    if not output_csv or not output_csv.strip():
+        raise ValueError("Output CSV path cannot be empty")
+    
     total_ops, total_opnds = [], []
     total_loc = 0
     file_results = []
