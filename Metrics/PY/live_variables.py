@@ -111,7 +111,6 @@ def run_live_variable_analysis(project_dir, ignore_dirs, output_csv, file_extens
     ignore_dirs = ignore_dirs or IGNORED_DEFAULT
     
     if variables_map:
-        # Use pre-computed variables from parser
         all_results = []
         print("\nUsing pre-computed variable data...\n")
         print(f"Processing {len(variables_map)} files from variables_map")
@@ -126,7 +125,6 @@ def run_live_variable_analysis(project_dir, ignore_dirs, output_csv, file_extens
                 })
         print(f"Total results: {len(all_results)}")
     else:
-        # Fallback: analyze JS files using default analyzer
         js_files = get_files_by_extensions(project_dir, ignore_dirs, file_extensions)
         if not js_files:
             print(f"No files found for extensions: {file_extensions}")

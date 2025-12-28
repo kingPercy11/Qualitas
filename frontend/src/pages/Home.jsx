@@ -30,7 +30,6 @@ const Home = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-linear-to-br from-gray-100 via-blue-50 to-white dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 text-gray-900 dark:text-gray-100 transition-all">
-      {/* Nav / Header */}
       <nav className="w-full bg-white-800 opacity-90 py-4 px-6 flex items-center justify-between">
         <div className="flex items-center">
           <img src="/Logo.png" alt="Qualitas" className="h-15 w-auto" />
@@ -43,7 +42,6 @@ const Home = () => {
         What would you like to do today?
       </p>
 
-  {/* Options Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-11/12 md:w-4/5 lg:w-3/5">
         {cards.map((card, index) => (
           <div

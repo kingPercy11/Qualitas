@@ -14,7 +14,6 @@ async def analyze_controller(
     project_files: Optional[List[UploadFile]] = None,
 ):
     try:
-        # If files were uploaded, save them to a temp directory and analyze that.
         if uploaded and project_files:
             if not project_files or len(project_files) == 0:
                 raise HTTPException(status_code=400, detail="No files were uploaded. Please select files to analyze.")
@@ -26,11 +25,9 @@ async def analyze_controller(
                 if not up.filename or up.filename.strip() == "":
                     continue
                     
-                # Sanitize filename to prevent directory traversal
                 filename = up.filename.replace("\\", "/")
                 filename = os.path.normpath(filename)
                 if filename.startswith("..") or os.path.isabs(filename):
-                    # skip suspicious files
                     continue
 
                 dest_path = os.path.join(tmpdir, filename)

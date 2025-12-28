@@ -17,9 +17,6 @@ except Exception:
 
 app = FastAPI(title="Qualitas Quality Metrics API", version="1.0")
 
-# === CORS Setup ===
-# Allow origins can be configured with the CORS_ALLOW_ORIGINS env var as a
-# comma-separated list. If not provided, default to allow all origins ("*").
 _allow_origins_env = os.getenv("CORS_ALLOW_ORIGINS")
 if _allow_origins_env:
     allow_origins: List[str] = [o.strip() for o in _allow_origins_env.split(",") if o.strip()]

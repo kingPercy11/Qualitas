@@ -50,7 +50,6 @@ def _extract_cpp_variables(filepath):
     var_set = set()
     result = {}
 
-    # simple type-based declaration regex
     type_re = re.compile(r"\b(?:int|float|double|char|bool|auto|long|short|unsigned|size_t|std::string|string)\b\s+([A-Za-z_]\w*)")
     func_def_re = re.compile(r"^[A-Za-z_\*\s:&<>]+\s+([A-Za-z_]\w*)\s*\((.*?)\)\s*(?:\{|;)")
 
@@ -58,7 +57,6 @@ def _extract_cpp_variables(filepath):
         lines = f.readlines()
 
     for i, line in enumerate(lines, start=1):
-        # function parameters
         mfunc = func_def_re.match(line.strip())
         if mfunc:
             params = mfunc.group(2)
@@ -69,13 +67,11 @@ def _extract_cpp_variables(filepath):
                 if name and name.isidentifier():
                     var_set.add(name)
 
-        # type declarations
         for m in type_re.findall(line):
             name = m
             if name and name.isidentifier():
                 var_set.add(name)
 
-        # assignments with = (avoid ==)
         am = re.findall(r"([A-Za-z_]\w*)\s*=", line)
         for name in am:
             if name and name.isidentifier():

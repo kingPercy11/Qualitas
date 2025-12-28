@@ -3,18 +3,15 @@ import sys
 import csv
 from collections import Counter
 
-# === Setup paths ===
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 METRICS_PATH = os.path.join(CURRENT_DIR, "Metrics", "PY")
 sys.path.append(METRICS_PATH)
 
-# === Imports ===
 from halstead import run_halstead_analysis
 from information_flow import run_information_flow_analysis
 from live_variables import run_live_variable_analysis
 from importlib import import_module
 
-# Dynamically import language detector from Metrics/parsers
 language_detector = import_module("Metrics.parsers.language_detector")
 
 
@@ -32,7 +29,6 @@ def get_user_input():
         os.makedirs(output_dir)
         print(f"Created directory: {output_dir}")
 
-    # Paths for all reports
     halstead_csv = os.path.join(output_dir, "halstead_report.csv")
     infoflow_csv = os.path.join(output_dir, "information_flow_metrics.csv")
     livevar_csv = os.path.join(output_dir, "live_variables_report.csv")
@@ -62,8 +58,6 @@ def run_quality_metrics(project_dir=None, ignore_dirs=None, output_dir=None):
 
     os.makedirs(output_dir, exist_ok=True)
 
-    # Detect all languages present and run each parser separately. Each
-    # language will write CSVs into a subfolder under output_dir.
     langs = language_detector.detect_languages(project_dir)
     print(f"Detected languages: {langs}")
 
@@ -94,7 +88,6 @@ def run_quality_metrics(project_dir=None, ignore_dirs=None, output_dir=None):
             all_results[lang] = {"error": str(e)}
 
     print("\nAll analyses complete!")
-    # Build combined metrics across all languages
     combined = {
         "total_ops": {},
         "total_opnds": {},
@@ -106,11 +99,9 @@ def run_quality_metrics(project_dir=None, ignore_dirs=None, output_dir=None):
         "oop_metrics_csv": os.path.join(output_dir, "combined_oop_metrics.csv"),
     }
 
-    # Aggregate counters
     ops_counter = Counter()
     opnds_counter = Counter()
 
-    # helpers to collect CSVs
     halstead_files = []
     infoflow_files = []
     livevar_files = []
@@ -125,12 +116,10 @@ def run_quality_metrics(project_dir=None, ignore_dirs=None, output_dir=None):
         if res.get("total_opnds"):
             opnds_counter.update(res.get("total_opnds", {}))
         if res.get("variables"):
-            # merge variable maps (file paths should be unique)
             combined_vars = res.get("variables")
             for p, vm in combined_vars.items():
                 combined["variables"][p] = vm
 
-        # collect csv paths if present
         if res.get("halstead"):
             halstead_files.append(res.get("halstead"))
         if res.get("information_flow"):
@@ -145,7 +134,6 @@ def run_quality_metrics(project_dir=None, ignore_dirs=None, output_dir=None):
     combined["total_ops"] = dict(ops_counter)
     combined["total_opnds"] = dict(opnds_counter)
 
-    # Function to concatenate CSVs with a header from the first file
     def _concat_csvs(sources, dest_path):
         if not sources:
             return None
@@ -170,7 +158,6 @@ def run_quality_metrics(project_dir=None, ignore_dirs=None, output_dir=None):
                     continue
         return dest_path
 
-    # write combined CSVs
     _concat_csvs(halstead_files, combined["halstead_csv"]) if halstead_files else None
     _concat_csvs(infoflow_files, combined["information_flow_csv"]) if infoflow_files else None
     _concat_csvs(livevar_files, combined["live_variables_csv"]) if livevar_files else None

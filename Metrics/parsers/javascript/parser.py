@@ -1,7 +1,6 @@
 import os
 import importlib
 
-# Load metric modules via importlib (halstead, information_flow, live_variables)
 _hal = importlib.import_module("halstead")
 _info = importlib.import_module("information_flow")
 _live = importlib.import_module("live_variables")
@@ -51,7 +50,6 @@ def run_metrics(project_dir, ignore_dirs, output_dir):
 
     exts = ('.js', '.jsx', '.ts')
 
-    # Collect details before running CSV output so parser returns them
     total_ops_count, total_opnds_count, variables = _collect_details(project_dir, ignore_dirs, exts)
 
     print("Running Halstead (JavaScript)...")

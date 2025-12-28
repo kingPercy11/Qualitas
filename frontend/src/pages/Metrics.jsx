@@ -13,7 +13,6 @@ const Metrics = () => {
         </p>
       </header>
 
-      {/* Metrics Form Component */}
       <div className="flex justify-center">
         <MetricsForm />
       </div>

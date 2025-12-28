@@ -1,6 +1,5 @@
 import os
 
-# Simple detector based on file extensions found in the project directory.
 EXTENSION_LANGUAGE_MAP = {
     '.py': 'python',
     '.js': 'javascript',
@@ -30,7 +29,6 @@ def detect_language(project_dir):
 
     if not counts:
         return 'unknown'
-    # return the language with the highest count
     return max(counts.items(), key=lambda x: x[1])[0]
 
 
@@ -48,5 +46,4 @@ def detect_languages(project_dir):
     if not counts:
         return []
 
-    # sort languages by count desc
     return [lang for lang, _ in sorted(counts.items(), key=lambda x: x[1], reverse=True)]

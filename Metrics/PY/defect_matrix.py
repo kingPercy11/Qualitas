@@ -39,7 +39,6 @@ def calculate_defect_metrics(filepath):
     current_nesting = 0
     function_count = 0
     
-    # Keywords that increase complexity
     complexity_keywords = ['if', 'elif', 'else', 'for', 'while', 'case', 'catch', 'switch', '&&', '||', '?']
     function_keywords = ['def ', 'function ', 'fn ', 'func ', 'public ', 'private ', 'protected ']
     open_brackets = ['{', '(', '[']
@@ -48,35 +47,28 @@ def calculate_defect_metrics(filepath):
     for line in lines:
         stripped = line.strip()
         
-        # Skip blank lines and comments
         if not stripped or stripped.startswith('#') or stripped.startswith('//') or stripped.startswith('/*') or stripped.startswith('*'):
             continue
         
         loc += 1
         
-        # Count complexity
         for keyword in complexity_keywords:
             if keyword in stripped:
                 complexity += stripped.count(keyword)
         
-        # Count functions
         for func_kw in function_keywords:
             if func_kw in stripped:
                 function_count += 1
                 break
         
-        # Track nesting (simplified - count braces)
         current_nesting += stripped.count('{')
         max_nesting = max(max_nesting, current_nesting)
         current_nesting -= stripped.count('}')
         current_nesting = max(0, current_nesting)
     
-    # Estimate defect density based on empirical formulas
-    # Higher complexity and deeper nesting typically correlate with more defects
     if loc > 0:
         complexity_factor = complexity / max(loc, 1)
         nesting_factor = max_nesting / 10.0
-        # Estimated defects per 1000 lines (industry average is ~15-50)
         defect_density = (complexity_factor * 20 + nesting_factor * 5) * 1000
     else:
         defect_density = 0.0
@@ -115,7 +107,6 @@ def run_defect_matrix_analysis(project_dir, ignore_dirs, output_csv, file_extens
         if metrics:
             all_results.append(metrics)
     
-    # Write results to CSV
     if all_results:
         with open(output_csv, "w", newline="", encoding="utf-8") as f:
             fieldnames = ["file", "lines_of_code", "cyclomatic_complexity", "max_nesting_depth", 

@@ -2,7 +2,6 @@ import os
 import importlib
 from collections import Counter
 
-# Load metric implementations
 _hal = importlib.import_module("halstead")
 _info = importlib.import_module("information_flow")
 _live = importlib.import_module("live_variables")
@@ -51,7 +50,6 @@ def run_metrics(project_dir, ignore_dirs, output_dir):
 
     exts = ('.ts', '.tsx')
 
-    # Collect totals and variable maps first
     total_ops_count, total_opnds_count, variables = _collect_details(project_dir, ignore_dirs, exts)
 
     print("Running Halstead (TypeScript)...")

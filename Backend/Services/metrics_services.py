@@ -10,7 +10,6 @@ from quality_metrics import run_quality_metrics
 
 def analyze_metrics(project_dir: str, ignore_dirs: set, output_dir: str):
     try:
-        # Validate inputs
         if not project_dir or project_dir.strip() == "":
             raise ValueError("Project directory cannot be empty")
         if not os.path.exists(project_dir):

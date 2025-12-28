@@ -2,7 +2,6 @@ import fs from "fs";
 import path from "path";
 import readline from "readline";
 
-// Common JS operators (extendable)
 const OPERATORS = new Set([
   "+", "-", "*", "/", "%", "++", "--", "==", "===",
   "!=", "!==", ">", "<", ">=", "<=", "&&", "||", "!",
@@ -16,7 +15,6 @@ const OPERATORS = new Set([
 const TOKEN_PATTERN = /[A-Za-z_]\w*|==|===|!=|!==|<=|>=|&&|\|\||[+\-*/%=&|^<>!?;:.,{}()[\]]/g;
 const COMMENT_PATTERN = /(\/\/.*?$|\/\*.*?\*\/)/gs;
 
-// === Extract operators, operands, LOC ===
 function extractOperatorsOperands(filepath) {
   const code = fs.readFileSync(filepath, "utf-8");
   const codeNoComments = code.replace(COMMENT_PATTERN, "");
@@ -40,7 +38,6 @@ function extractOperatorsOperands(filepath) {
   return { operators, operands, loc };
 }
 
-// === Halstead metrics ===
 function calculateHalstead(n1, n2, N1, N2) {
   const n = n1 + n2;
   const N = N1 + N2;
@@ -66,7 +63,6 @@ function calculateHalstead(n1, n2, N1, N2) {
   };
 }
 
-// === Recursive directory analysis ===
 function analyzeProject(PROJECT_DIR, IGNORE_DIRS) {
   const totalOps = [];
   const totalOpnds = [];
@@ -113,7 +109,6 @@ function analyzeProject(PROJECT_DIR, IGNORE_DIRS) {
   }
 }
 
-// === User input ===
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout

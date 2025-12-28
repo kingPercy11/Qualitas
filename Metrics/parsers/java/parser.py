@@ -21,16 +21,13 @@ def _extract_java_variables(filepath):
     var_set = set()
     result = {}
 
-    # Java type-based declaration regex (primitive and common types)
     type_re = re.compile(r"\b(?:int|float|double|char|boolean|byte|short|long|String|var)\b\s+([A-Za-z_]\w*)")
-    # Method/constructor parameter detection
     method_re = re.compile(r"(?:public|private|protected|static|\s)+[\w<>\[\]]+\s+(\w+)\s*\((.*?)\)")
     
     with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
         lines = f.readlines()
 
     for i, line in enumerate(lines, start=1):
-        # method parameters
         mmethod = method_re.search(line.strip())
         if mmethod:
             params = mmethod.group(2)
@@ -41,13 +38,11 @@ def _extract_java_variables(filepath):
                     if name and name.isidentifier():
                         var_set.add(name)
 
-        # type declarations
         for m in type_re.findall(line):
             name = m
             if name and name.isidentifier():
                 var_set.add(name)
 
-        # assignments with = (avoid ==)
         am = re.findall(r"([A-Za-z_]\w*)\s*=(?!=)", line)
         for name in am:
             if name and name.isidentifier():

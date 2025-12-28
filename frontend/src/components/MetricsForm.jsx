@@ -19,9 +19,7 @@ export default function MetricsForm() {
     setError(null);
 
     try {
-      // Validate inputs
       if (selectedFiles && selectedFiles.length > 0) {
-        // Using file upload - no additional validation needed
       } else {
         if (!projectDir || projectDir.trim() === "") {
           setError("Project directory cannot be empty. Please enter a path or select files.");
@@ -37,9 +35,7 @@ export default function MetricsForm() {
       }
 
       const formData = new FormData();
-            // If user selected files/folder via the picker, send files instead of a path
             if (selectedFiles && selectedFiles.length > 0) {
-                // mark this request as an upload and append each file
                 formData.append("uploaded", "true");
                 selectedFiles.forEach((f) => formData.append("project_files", f));
             } else {
@@ -52,7 +48,6 @@ export default function MetricsForm() {
   const res = await axios.post(`${apiBase}/api/analyze/`, formData);
       setResult(res.data);
     } catch (err) {
-      // Better error messages
       if (err.response && err.response.data && err.response.data.detail) {
         setError(`Error: ${err.response.data.detail}`);
       } else if (err.message) {
@@ -76,9 +71,7 @@ export default function MetricsForm() {
     const onFilesSelected = (e) => {
         const files = Array.from(e.target.files || []);
         setSelectedFiles(files);
-        // Clear projectDir string since user chose files directly
         if (files.length > 0) setProjectDir("");
-        // reset any previous checks
         setCheckedFiles(new Set());
     };
 
@@ -130,9 +123,6 @@ export default function MetricsForm() {
 
 const getReportPath = () => {
     if (!projectDir) return outputDir || "";
-    // const usesBackslash = projectDir.includes("\\") && !projectDir.includes("/");
-    // const sep = usesBackslash ? "\\" : "/";
-    // const trimmed = projectDir.replace(/[\\/]+$/g, "");
     return `${outputDir}`;
 };
 
@@ -151,7 +141,6 @@ return (
                     type="text"
                     value={projectDir}
                     onChange={(e) => setProjectDir(e.target.value)}
-                    // required
                     placeholder="Complete path to your project"
                     className="w-full p-3 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-100"
                 />
@@ -199,7 +188,6 @@ return (
                     )}
                 </div>
 
-                {/* Hidden inputs for folder/file pickers */}
                 <input
                     ref={dirInputRef}
                     type="file"
